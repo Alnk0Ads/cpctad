@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'self';">
+  
+  <!-- Bibliotecas -->
+  <script src="../../libs/hack-timer/HackTimer.min.js"></script>
+  <script src="../../libs/hack-timer/HackTimerWorker.min.js"></script>
+  <script src="../../libs/jquery/jquery-3.5.1.slim.min.js"></script>
+  <script src="../../libs/popper/popper.min.js"></script>
+  <link href="../../libs/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <script src="../../libs/bootstrap/bootstrap.min.js"></script>
+  <script src="../../libs/iframe-resizer/iframeResizer.contentWindow.min.js"></script>
+  <script src="../../libs/uuid-random/uuid-random.min.js"></script>
+  <link href="../../libs/spin/spin.css" rel="stylesheet" type="text/css">
+  
+  <!-- Config e estilos específicos -->
+  <script type="module" src="../../config/config.js"></script>
+  <link href="./popup.css" rel="stylesheet" type="text/css">
+  <script type="module" src="./popup.js"></script>
+</head>
+
+<body>
+  <!-- Container Principal -->
+  <div id="accordion" class="container">
+    <!-- Header da Extensão -->
+    <div id="header" class="row">
+      <div class="col-2 padding-0">
+        <img id="brand-logo" class="brand-logo" src="chrome-extension://hmdinepahgmfhgojoglndlhllogdceli/assets/logo/logo.svg">
+      </div>
+      <div class="col-8 padding-0">
+        <img id="brand-title" class="brand-title" src="chrome-extension://hmdinepahgmfhgojoglndlhllogdceli/assets/logo/light-title.svg">
+      </div>
+      <i class="dropdown-icon rotate" id="ui-toggle" data-bs-toggle="collapse" data-bs-target="#contentAccordion" aria-expanded="true" aria-controls="contentAccordion"></i>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div id="contentAccordion" class="accordion-collapse collapse show" data-bs-parent="#accordion">
+      <div id="content">
+        <!-- Autenticação -->
+        <div id="auth">
+          <!-- Usuário Não Logado -->
+          <div id="signed-out" class="row">
+            <div class="col-6 d-flex justify-content-center">
+              <button id="signin-top-btn" class="btn btn-outline-dark btn-sm btn-outline-text wide">Entrar</button>
+            </div>
+            <div class="col-6 d-flex justify-content-center">
+              <button id="signup-top-btn" class="btn btn-outline-success btn-sm btn-outline-text wide btn-pulse">Cadastrar</button>
+            </div>
+          </div>
+          
+          <!-- Usuário Logado -->
+          <div id="signed-in" class="row hide">
+            <div class="col-6 d-flex justify-content-center">
+              <button id="signout-top-btn" class="btn btn-outline-danger btn-sm btn-outline-text wide">Sair</button>
+            </div>
+            <div class="col-6 d-flex justify-content-center">
+              <button id="profile-top-btn" class="btn btn-outline-dark btn-sm btn-outline-text wide">Ver Perfil</button>
+              <button id="subscribe-top-btn" class="btn btn-outline-success btn-sm btn-outline-text wide btn-pulse">Ver Planos</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informações de Uso -->
+        <div id="usage">
+          <div class="row">
+            <div class="col-12 d-flex justify-content-center align-items-center">
+              <span id="usage-alert" class="popup-alert-text" style="color: red;">Usos restantes: 0 - Limite esgotado</span>
+              <span id="info-usage-alert" class="info-icon"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div id="error" class="hide">
+          <div class="row row-padding">
+            <div class="col-12">
+              <h4>Ops! Ocorreu um erro</h4>
+              <p>Limpe a cache do site da Biblioteca de Anúncios e recarregue a página. Se o erro persistir, entre em contato com o suporte ou aguarde.</p>
+            </div>
+          </div>
+          <div class="row row-padding">
+            <div class="col-12">
+              <button id="support-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <i class="wa-icon btn-icon"></i>
+                  <span class="btn-text">Suporte</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tela de Login -->
+        <div id="login">
+          <div class="row row-padding">
+            <div class="col-12">
+              <h4>Entre ou Cadastre-se Gratuitamente!</h4>
+              <p>Libere mais créditos gratuitos e continue usando o Copycat Ads</p>
+            </div>
+          </div>
+          <div class="row row-padding">
+            <div class="col-6">
+              <button id="signin-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <span class="btn-text">Entrar</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-6">
+              <button id="signup-btn" class="btn btn-success wide btn-pulse">
+                <div class="btn-content">
+                  <span class="btn-text">Cadastrar</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usuário não verificou email -->
+        <div id="noauth-inactive" class="hide">
+          <div class="row row-padding">
+            <div class="col-12">
+              <h4>Só Falta mais um Passo!</h4>
+              <p>Confirme seu email agora e destrave o seu limite de uso</p>
+            </div>
+          </div>
+          <div class="row row-padding">
+            <div class="col-6">
+              <button id="update-status-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <span class="btn-text">Já Validei</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-6">
+              <button id="resend-btn" class="btn btn-success wide btn-pulse">
+                <div class="btn-content">
+                  <span class="btn-text">Validar</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usuário sem plano -->
+        <div id="noauth-noplan" class="hide">
+          <div class="row row-padding">
+            <div class="col-12">
+              <h4>Pronto para o Próximo Nível?</h4>
+              <p>Assine agora e use o Copycat Ads de forma ilimitada</p>
+            </div>
+          </div>
+          <div class="row row-padding">
+            <div class="col-6">
+              <button id="update-subscription-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <span class="btn-text">Já Assinei</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-6">
+              <button id="subscribe-btn" class="btn btn-success wide btn-pulse">
+                <div class="btn-content">
+                  <span class="btn-text">Ver Planos</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Principal -->
+        <div id="app" class="hide">
+          <!-- Configuração de quantidade de anúncios -->
+          <div class="row row-padding">
+            <div class="col-12">
+              <label for="active-ads">Quantidade de anúncios:</label>
+              <span id="info-active-ads" class="info-icon"></span><br>
+              <input value="5" type="text" class="form-control" id="active-ads">
+            </div>
+          </div>
+
+          <!-- Configurações de filtro -->
+          <div class="row row-padding align-items-center">
+            <div class="col-12">
+              <div id="filter-setup-btn" class="btn-setup-wrapper">
+                <div class="col-2 d-inline-block">
+                  <button class="btn btn-setup">
+                    <i class="gear-icon"></i>
+                  </button>
+                </div>
+                <div class="col-10 d-inline-block adjust-left-negative">
+                  <label class="setup-label">Configurações de filtro</label>
+                  <span id="info-filter-setup" class="info-icon"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de Configurações de Filtro -->
+          <div class="modal fade" id="filter-setup-modal" tabindex="-1" aria-labelledby="filter-setup-title">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header d-flex align-items-center">
+                  <span class="title-status gear-icon" role="status"></span>
+                  <h1 class="modal-title fs-5" id="filter-setup-title">Configurações de Filtro</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <label for="filter-by">Filtrar por:</label>
+                      <span id="info-filter-by" class="info-icon"></span><br>
+                      <select class="form-select hide" id="filter-by">
+                        <option value="greater-equal" selected>Maior ou igual</option>
+                        <option value="lesser-equal">Menor ou igual</option>
+                      </select>
+                      <div class="dropdown">
+                        <button class="form-select dropdown-align" type="button" data-bs-toggle="dropdown" aria-expanded="false" value="greater-equal">
+                          Maior ou igual
+                        </button>
+                        <ul class="dropdown-menu dropdown-width">
+                          <li><a class="dropdown-item dropdown-align" value="greater-equal">Maior ou igual</a></li>
+                          <li><a class="dropdown-item dropdown-align" value="lesser-equal">Menor ou igual</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <label for="sort-by">Ordenar por:</label>
+                      <span id="info-sort-by" class="info-icon"></span><br>
+                      <select class="form-select hide" id="sort-by">
+                        <option value="disabled">Desabilitado</option>
+                        <option value="descending" selected>Decrescente</option>
+                        <option value="ascending">Crescente</option>
+                      </select>
+                      <div class="dropdown">
+                        <button class="form-select dropdown-align" type="button" data-bs-toggle="dropdown" aria-expanded="false" value="descending">
+                          Decrescente
+                        </button>
+                        <ul class="dropdown-menu dropdown-width">
+                          <li><a class="dropdown-item dropdown-align" value="disabled">Desabilitado</a></li>
+                          <li><a class="dropdown-item dropdown-align" value="descending">Decrescente</a></li>
+                          <li><a class="dropdown-item dropdown-align" value="ascending">Crescente</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <button class="btn btn-custom wide" data-bs-dismiss="modal">
+                        <div class="btn-content">
+                          <span class="btn-text">Pronto</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pesquisa automática -->
+          <div class="row row-padding">
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="automatic-search" checked>
+                <label class="form-check-label" for="automatic-search">
+                  Pesquisa automática
+                  <span id="info-automatic-search" class="info-icon"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parâmetros de pesquisa automática -->
+          <div id="automatic-search-params" class="hide">
+            <div class="row row-padding align-items-center">
+              <div class="col-12">
+                <div id="search-setup-btn" class="btn-setup-wrapper">
+                  <div class="col-2 d-inline-block">
+                    <button class="btn btn-setup">
+                      <i class="gear-icon"></i>
+                    </button>
+                  </div>
+                  <div class="col-10 d-inline-block adjust-left-negative">
+                    <label class="setup-label">Configurações de pesquisa</label>
+                    <span id="info-search-setup" class="info-icon"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal de Configurações de Pesquisa -->
+            <div class="modal fade" id="search-setup-modal" tabindex="-1" aria-labelledby="search-setup-title">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header d-flex align-items-center">
+                    <span class="title-status gear-icon" role="status"></span>
+                    <h1 class="modal-title fs-5" id="search-setup-title">Configurações de Pesquisa</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row row-padding">
+                      <div class="col-12">
+                        <label for="pause-time">Parar automaticamente em:</label>
+                        <span id="info-pause-time" class="info-icon"></span><br>
+                        <input value="5" type="text" class="form-control" id="pause-time">
+                      </div>
+                    </div>
+                    <div class="row row-padding">
+                      <div class="col-12">
+                        <label for="scroll-time">Tempo de rolagem:</label>
+                        <span id="info-scroll-time" class="info-icon"></span><br>
+                        <input value="15" type="text" class="form-control" id="scroll-time">
+                      </div>
+                    </div>
+                    <div class="row row-padding">
+                      <div class="col-12">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" role="switch" id="search-notification" checked value="true">
+                          <label class="form-check-label" for="search-notification">
+                            Notificação
+                            <span id="info-search-notification" class="info-icon"></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row row-padding">
+                      <div class="col-12">
+                        <button class="btn btn-custom wide" data-bs-dismiss="modal">
+                          <div class="btn-content">
+                            <span class="btn-text">Pronto</span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sugestões de pesquisa -->
+          <div class="row row-padding align-items-center">
+            <div class="col-12">
+              <div id="keyword-setup-btn" class="btn-setup-wrapper">
+                <div class="col-2 d-inline-block">
+                  <button class="btn btn-setup">
+                    <i class="sparkles-icon"></i>
+                  </button>
+                </div>
+                <div class="col-10 d-inline-block adjust-left-negative">
+                  <label class="setup-label">Sugestão de pesquisa</label>
+                  <span id="info-keyword-setup" class="info-icon"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal de Sugestão de Pesquisa -->
+          <div class="modal fade" id="keyword-setup-modal" tabindex="-1" aria-labelledby="keyword-setup-title">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header d-flex align-items-center">
+                  <span class="title-status sparkles-icon" role="status"></span>
+                  <h1 class="modal-title fs-5" id="keyword-setup-title">Sugestão de Pesquisa</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <label for="keyword-niche">Nicho:</label>
+                      <span id="info-keyword-niche" class="info-icon"></span><br>
+                      <input type="text" class="form-control" id="keyword-niche">
+                    </div>
+                  </div>
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <label for="keyword-product">Tipo de Produto:</label>
+                      <span id="info-keyword-product" class="info-icon"></span><br>
+                      <input type="text" class="form-control" id="keyword-product">
+                    </div>
+                  </div>
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="persistent-chat">
+                        <label class="form-check-label" for="persistent-chat">
+                          Salvar Chat
+                          <span id="info-persistent-chat" class="info-icon"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row row-padding">
+                    <div class="col-12">
+                      <button class="btn btn-custom wide" id="generate-keyword-btn" data-bs-dismiss="modal">
+                        <div class="btn-content">
+                          <i class="chatgpt-icon btn-icon"></i>
+                          <span class="btn-text">Abrir no Chat-GPT</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status da pesquisa -->
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex justify-content-center align-items-center">
+                <span id="is-searching-spinner" class="spinner spinner-grow spinner-grow-sm hide" role="status"></span>
+                <p id="pause-time-alert" class="popup-alert-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões de controle -->
+          <div class="row row-padding">
+            <div class="col-12">
+              <button id="search-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <i class="play-icon btn-icon"></i>
+                  <span class="btn-text">Pesquisar</span>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="row row-padding hide">
+            <div class="col-12">
+              <button id="pause-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <i class="pause-icon btn-icon"></i>
+                  <span class="btn-text">Parar</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer com links de redes sociais -->
+    <div id="footer">
+      <div class="row row-padding">
+        <div class="col-3"></div>
+        <div class="col-6">
+          <div class="social-media">
+            <button id="cc-btn" type="button" class="social-icon cc-icon btn"></button>
+            <button id="ig-btn" type="button" class="social-icon ig-icon btn"></button>
+            <button id="yt-btn" type="button" class="social-icon yt-icon btn"></button>
+            <button id="tt-btn" type="button" class="social-icon tt-icon btn"></button>
+            <button id="wa-btn" type="button" class="social-icon wa-icon btn"></button>
+          </div>
+        </div>
+        <div class="col-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Resultado da Pesquisa -->
+  <div class="modal fade" id="search-result-modal" tabindex="-1" aria-labelledby="search-result-title">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header d-flex align-items-center">
+          <span id="search-result-title-status" class="title-status" role="status"></span>
+          <h1 class="modal-title fs-5" id="search-result-title"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row row-padding">
+            <div class="col-12">
+              <p id="search-result-text"></p>
+            </div>
+          </div>
+          <div id="search-support-div" class="row row-padding hide">
+            <div class="col-12">
+              <button id="search-support-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <i class="wa-icon btn-icon"></i>
+                  <span class="btn-text">Suporte</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Alerta Personalizado -->
+  <div class="modal fade" id="custom-alert-modal" tabindex="-1" aria-labelledby="custom-alert-title">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header d-flex align-items-center">
+          <span id="custom-alert-title-status" class="title-status" role="status"></span>
+          <h1 class="modal-title fs-5" id="custom-alert-title"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row row-padding">
+            <div class="col-12">
+              <p id="custom-alert-text"></p>
+            </div>
+          </div>
+          <div id="custom-support-div" class="row row-padding hide">
+            <div class="col-12">
+              <button id="custom-support-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <i class="wa-icon btn-icon"></i>
+                  <span class="btn-text">Suporte</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Boas-vindas -->
+  <div class="modal fade" id="welcome-modal" tabindex="-1" aria-labelledby="welcome-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header d-flex align-items-center">
+          <span class="title-status check-icon" role="status"></span>
+          <h1 class="modal-title fs-5" id="welcome-modal-title">Bem-vindo ao Copycat Ads!</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-12">
+              <p>Cadastre-se grátis ou entre com uma conta já cadastrada para aproveitar todos os recursos do Copycat Ads.</p>
+            </div>
+          </div>
+          <div class="row row-padding">
+            <div class="col-6 d-flex justify-content-left">
+              <button id="welcome-signin-btn" class="btn btn-custom wide">
+                <div class="btn-content">
+                  <span class="btn-text">Entrar</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-6 d-flex justify-content-left">
+              <button id="welcome-signup-btn" class="btn btn-success wide btn-pulse">
+                <div class="btn-content">
+                  <span class="btn-text">Cadastrar</span>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="show-welcome-message" checked>
+                <label class="form-check-label" for="show-welcome-message">Sempre mostrar esta mensagem</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- iframe de Autenticação Silenciosa -->
+  <iframe src="https://copycat.intellabs.com.br/profile?utm_source=copycat_ads_user&utm_medium=silent_auth_iframe&nocache=1747781635054" 
+          id="silent-auth" 
+          width="1" 
+          height="1" 
+          cache-control="no-cache, no-store, must-revalidate" 
+          pragma="no-cache" 
+          expires="0">
+  </iframe>
+
+  <div style="clear: both; display: block; height: 0px;"></div>
+</body>
+</html>
